@@ -1,0 +1,25 @@
+{
+  "formatVersion": "2",
+  "nlu": {
+    "skills": [
+
+    ],
+    "customIntents": {
+      "file": "data.json"
+    },
+    "disabledIntentBySkill": {
+      "common_phrases": [ "how_do_you_do" ]
+    },
+    "language": "en-US"
+  },
+  "dialogue": {
+    "file": "main.dsl"
+  },
+  "nlg": {
+    "type": "phrases",
+    "file": "phrasemap.json",
+    "signatureFile": "phrasemap.json"
+  },
+  "name": "ai-help-center",
+  "description": "Prototype for integrating Dasha with Yext Answers"
+}

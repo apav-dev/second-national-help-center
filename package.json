@@ -1,0 +1,11 @@
+{
+  "name": "ai-help-center",
+  "version": "1.0.0",
+  "description": "Prototype for an AI call center built with Dasha and Yext",
+  "main": "index.js",
+  "author": "apav_dev",
+  "license": "MIT",
+  "dependencies": {
+    "@dasha.ai/sdk": "^0.7.3"
+  }
+}

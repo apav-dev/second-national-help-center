@@ -1,0 +1,16 @@
+{
+  "default": {
+    "voiceInfo": {
+      "lang": "en-US",
+      "speaker": "default",
+      "speed": 1
+    },
+    "phrases": {
+      "welcome": [{ "text": "Hi! Welcome to the Second National bank help center. In order to better assist you, can you please provide me with your first and last name?"}]
+    },
+    "types": {},
+    "macros": {
+      "welcome": {}
+    }
+  }
+}
