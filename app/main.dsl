@@ -8,7 +8,10 @@ context
   // declare storage variables
   output first_name: string = "";
   output last_name: string = "";
+  output response: string = "";
 }
+
+external function search(): string;
 
 start node root //start node
 {
@@ -33,9 +36,10 @@ digression how_may_i_help
   
   do
   {
+    set $response = external search();
     set $first_name =  #messageGetData("first_name")[0]?.value??"";
     set $last_name =  #messageGetData("last_name")[0]?.value??"";
-    #sayText("Awesome, nice to meet you " + $first_name + ", how may I assist you today?");
+    #sayText("Awesome, nice to meet you " + $first_name + ", how may I assist you today?" + $response);
     wait *;
   }
 }
