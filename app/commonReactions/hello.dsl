@@ -9,7 +9,7 @@ preprocessor digression hello
   {
     on #getIdleTime() - digression.hello.lastIdleTime > digression.hello.idleTimeLimit tags: ontick;
   }
-  var idleTimeLimit=200000;
+  var idleTimeLimit=8000;
   var lastIdleTime=0;
   var retriesLimit=2;
   var counter=0;

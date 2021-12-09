@@ -1,4 +1,4 @@
-// import "commonReactions/all.dsl";
+import "commonReactions/all.dsl";
 
 context
 {

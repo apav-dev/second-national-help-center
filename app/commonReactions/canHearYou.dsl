@@ -7,7 +7,7 @@ digression can_hear_you
     on #messageHasAnyIntent(digression.can_hear_you.triggers) priority -100;
   }
   var triggers = ["can_you_hear_me"];
-  var responses = ["i_can_hear_you"];
+  var responses: Phrases[] = ["i_can_hear_you"];
   do
   {
     for (var item in digression.can_hear_you.responses)

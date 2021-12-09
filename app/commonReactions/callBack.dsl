@@ -13,7 +13,7 @@ digression i_will_call_back
     on #messageHasAnyIntent(digression.i_will_call_back.triggers) priority 1010;
   }
   var triggers = ["call_later"];
-  var responses = ["i_will_call_back"];
+  var responses: Phrases[] = ["i_will_call_back"];
   var serviceStatus = "Done";
   var status = "CallBack";
   do

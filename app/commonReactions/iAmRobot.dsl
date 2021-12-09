@@ -7,14 +7,14 @@ digression i_am_robot
     on #messageHasAnyIntent(digression.i_am_robot.triggers);
   }
   var triggers = ["are_you_a_robot"];
-  var responses = ["yes_i_am_a_robot"];
+  var responses: Phrases[] = ["yes_i_am_a_robot"];
   do
   {
     for (var item in digression.i_am_robot.responses)
     {
       #say(item, repeatMode: "ignore");
     }
-    #repeat(accuracy: "short");
+    //#repeat(accuracy: "short");
     return;
   }
   transitions

@@ -6,11 +6,75 @@
       "speed": 1
     },
     "phrases": {
-      "welcome": [{ "text": "Hi! Welcome to the Second National bank help center. In order to better assist you, can you please provide me with your first and last name?"}]
+      "welcome": [{ "text": "Hi! Welcome to the Second National bank help center. In order to better assist you, can you please provide me with your first and last name?"}],
+      "i_will_call_back": 
+      [{ "text": "Okay, I'll call you later. Bye!" }],
+      "hello": 
+      {
+        "random": [
+          [{ "text": "Hello" }],
+          [{ "text": "Umm, hello?" }],
+          [{ "text": "Are you there?" }]
+        ]
+      },
+      "i_can_hear_you": [{ "text": "Yes, I hear you" }],
+      "i_will_wait": 
+      {
+        "random": [
+          [{ "text": "Okay, I'll wait" }],
+          [{ "text": "Sure, I'll wait" }],
+          [{ "text": "Okay, no problem!" }]
+        ]
+      },
+      "dont_understand": {
+        "random": [
+          [{ "text": "Sorry, could you say it again?" }],
+          [
+            {
+              "text": "Sorry, the connection dropped for a second. Could you say that again?"
+            }
+          ],
+          [{ "text": "Sorry, I didn't quite catch that." }],
+          [{ "text": "Could you say it one more time?" }]
+        ]
+      },
+      "dont_understand_request": [
+        { "text": "Sorry, i cant do it now. May be some day." }
+      ],
+      "dont_understand_question": [
+        { "text": "Sorry, i dont understand your question. Can you say it otherwise?" }
+      ],
+      "dont_understand_hangup": [
+        {
+          "text": "I'm sorry I can barely hear you. I'll try to call you later! Bye!"
+        }
+      ],
+      "dont_understand_forward": [
+        {
+          "text": "I'm sorry, let me transfer you to another agent. Please stand by!"
+        }
+      ],
+      "yes_i_am_a_robot": [
+        {
+          "text": "Actually I am an advanced AI. Just don't tell my boss or I'll be out of a job."
+        }
+      ]
     },
     "types": {},
     "macros": {
-      "welcome": {}
+      "welcome": {},
+      "i_will_call_back": {},
+      "i_can_hear_you": {},
+      "i_will_wait": {},
+      "hello": {},
+      "dont_understand": {},
+      "dont_understand_request": {},
+      "dont_understand_question": {},
+      "dont_understand_hangup": {},
+      "dont_understand_forward": {},
+      "i_said": {},
+      "yes_i_am_a_robot": {},
+      "sorry_wont_call": {}
     }
   }
 }

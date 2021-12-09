@@ -7,7 +7,7 @@ digression sorry_wont_call
     on #messageHasAnyIntent(digression.sorry_wont_call.triggers) priority 1010;
   }
   var triggers = ["do_not_call", "you_already_called_me", "wrong_number", "whom_do_you_call", "obscene"];
-  var responses = ["sorry_wont_call"];
+  var responses: Phrases[] = ["sorry_wont_call"];
   var status = "DontCall";
   var serviceStatus="Done";
   do

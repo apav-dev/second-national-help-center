@@ -26,7 +26,7 @@ digression repeat_hangup_params
   {
     on false;
   }
-  var responses = ["dont_understand_hangup"];
+  var responses: Phrases[] = ["dont_understand_hangup"];
   var status = "RepeatHangup";
   var serviceStatus = "Done";
   do
@@ -47,7 +47,7 @@ digression repeat
   var counter = 0;
   var resetOnRecognized=false;
   var triggers = ["repeat", "dont_understand"];
-  var responses = ["i_said"];
+  var responses: Phrases[] = ["i_said"];
   do
   {
     if (digression.repeat.counter > digression.repeat.retriesLimit)
