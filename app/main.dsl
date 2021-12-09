@@ -10,14 +10,14 @@ context
   last_name: string = "";
   response: string = "";
   
-  house_num: string="";
+  street_num: string="";
   street: string="";
   city: string="";
   state: string="";
   zip_code: string="";
 }
 
-external function lookForBranch(zipCode: string): string;
+external function lookForBranch(street_num: string, street: string, city: string, state: string, zip_code: string): string;
 
 start node root //start node
 {
@@ -66,18 +66,30 @@ digression set_zip_code
 {
   conditions
   {
-    on #messageHasData("zip_code") and !#messageHasData("house_num") and !#messageHasData("street_name") and !#messageHasData("city") and !#messageHasData("state");
+    on #messageHasData("zip_code") and !#messageHasData("street_num") and !#messageHasData("street_name") and !#messageHasData("city") and !#messageHasData("state");
   }
   do
   {
-    set $zip_code = #messageGetData("zip_code")[0]?.value??"";
+    set $zip_code = #messageGetData("zip_code")[0]?.value ?? "";
     #sayText("Ok let me see if I can find a branch close by, just give me one second.");
-    var branch_response = external lookForBranch($zip_code);
+    var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
     #sayText("The closest branch I can find to you is located at " + branch_response);
   }
 }
 
-// digression set_address
-// {
-
-// }
+digression set_address
+{
+  conditions
+  {
+    on #messageHasData("street_name") or #messageHasData("city") or !#messageHasData("state");
+  }
+  do
+  {
+    set $street_num = #messageGetData("street_num")[0]?.value ?? "";
+    set $street = #messageGetData("street")[0]?.value ?? "";
+    set $city = #messageGetData("city")[0]?.value ?? "";
+    set $state = #messageGetData("state")[0]?.value ?? "";
+    #sayText("Ok let me see if I can find a branch close by, just give me one second.");
+    var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
+  }
+}

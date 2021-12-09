@@ -1,9 +1,9 @@
 require("dotenv").config();
-const { provideAnswersHeadless } = require("@yext/answers-headless");
+const { provideCore } = require("@yext/answers-core");
 
-const answers = provideAnswersHeadless({
+const answers = provideCore({
   apiKey: process.env.ANSWERS_API_KEY,
-  experienceKey: "firstfinancial-answers",
+  experienceKey: "dasha",
   locale: "en",
   experienceVersion: "PRODUCTION",
   endpoints: {
@@ -24,6 +24,7 @@ const answers = provideAnswersHeadless({
 });
 
 const dasha = require("@dasha.ai/sdk");
+const fs = require("fs");
 
 const main = async () => {
   const app = await dasha.deploy("./app");
@@ -36,16 +37,49 @@ const main = async () => {
       : dasha.sip.connect(new dasha.sip.Endpoint("default"));
 
   app.setExternal("lookForBranch", async (args, conv) => {
-    const zipCode = args.zipCode;
+    const street_num = args.street_num;
+    const street = args.street;
+    const city = args.city;
+    const state = args.state;
+    const zip_code = args.zip_code;
+    const locationQuery = `${street_num} ${street} ${city} ${state} ${zip_code}`;
 
-    console.log(zipCode);
-    return "Hello from Answers!";
+    console.log(
+      `street number: ${street_num} street: ${street} city: ${city} state: ${state} zip code: ${zip_code}`
+    );
+
+    const branchesResponse = await answers.verticalSearch({
+      query: locationQuery,
+      verticalKey: "locations",
+      limit: 1,
+    });
+
+    const branchLocation =
+      branchesResponse.verticalResults.results[0].rawData.address;
+
+    return `So it looks like we have a location at ${branchLocation.line1}. Would you like me to make you an appointment?`;
   });
 
   await app.start();
 
   const conv = app.createConversation({
-    phone: process.argv[2],
+    phone: process.argv[2] ?? "",
+  });
+
+  if (conv.input.phone !== "chat") conv.on("transcription", console.log);
+
+  const logFile = await fs.promises.open("./log.txt", "w");
+  await logFile.appendFile("#".repeat(100) + "\n");
+
+  conv.on("transcription", async (entry) => {
+    await logFile.appendFile(`${entry.speaker}: ${entry.text}\n`);
+  });
+
+  conv.on("debugLog", async (event) => {
+    if (event?.msg?.msgId === "RecognizedSpeechMessage") {
+      const logEntry = event?.msg?.results[0]?.facts;
+      await logFile.appendFile(JSON.stringify(logEntry, undefined, 2) + "\n");
+    }
   });
 
   await conv.execute();

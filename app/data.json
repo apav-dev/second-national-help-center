@@ -176,7 +176,7 @@
           "(Bond)[last_name], (James)[first_name], (Bond)[last_name]"
         ]
       },
-    "house_num": {
+    "street_num": {
       "open_set": true,
       "values": [
         {
@@ -223,21 +223,22 @@
         }
       ],
       "includes": [
-        "my building number is (seven)[house_num]",
-        "I live on (seventy five)[house_num] (William Penn Highway)[street]",
-        "my address is (one sixty two)[house_num] (Washington Road)[street]",
-        "deliver my order to (twenty seven)[house_num] (West Carson Street)[street]",
-        "deliver it to (six two one)[house_num] (McKnight Road)[street]",
-        "on (five hundred seventy nine)[house_num] (Centre Avenue)[street]",
-        "live on (Penn Avenue)[street] building number (seventy six)[house_num]",
-        "my address is (Centre ave)[street] building (one three six)[house_num]",
-        "my building number is (eighty three)[house_num]",
-        "house number is (two seventy three)[house_num]",
-        "my building number is (97)[house_num]",
-        "house number is (309)[house_num]",
-        "on (399)[house_num] (Centre Avenue)[street]",
-        "live on (Penn Avenue)[street] building number (598)[house_num]",
-        "my address is (Centre ave)[street] building (876)[house_num]"
+        "my building number is (seven)[street_num]",
+        "I live on (seventy five)[street_num] (William Penn Highway)[street]",
+        "my address is (one sixty two)[street_num] (Washington Road)[street]",
+        "deliver my order to (twenty seven)[street_num] (West Carson Street)[street]",
+        "deliver it to (six two one)[street_num] (McKnight Road)[street]",
+        "on (five hundred seventy nine)[street_num] (Centre Avenue)[street]",
+        "live on (Penn Avenue)[street] building number (seventy six)[street_num]",
+        "my address is (Centre ave)[street] building (one three six)[street_num]",
+        "my building number is (eighty three)[street_num]",
+        "street number is (two seventy three)[street_num]",
+        "my building number is (97)[street_num]",
+        "street number is (309)[street_num]",
+        "on (399)[street_num] (Centre Avenue)[street]",
+        "live on (Penn Avenue)[street] building number (598)[street_num]",
+        "my address is (Centre ave)[street] building (876)[street_num]",
+        "(829)[street_num] (elm spring road)[street] (pittsburgh)[city] (state)[state]"
       ]
     },
     "street": {
@@ -272,8 +273,28 @@
         "I live on (Penn avenue)[street]"
       ]
     },
+    "city": {
+      "open_set": true,
+      "values": [
+        {
+          "value": "Pittsburgh"
+        },
+        {
+          "value": "Chicago"
+        },
+        {
+          "value": "San Francisco"
+        },
+        {
+          "value": "Phoenix"
+        },
+        {
+          "value": "New York"
+        }
+      ]
+    },
     "state": {
-      "open_set": false,
+      "open_set": true,
       "values": [
         {
           "value": "New York",
