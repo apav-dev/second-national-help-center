@@ -1,7 +1,7 @@
 require("dotenv").config();
+const { provideAnswersHeadless } = require("@yext/answers-headless");
 
-const { provideCore } = require("@yext/answers-core");
-const core = provideCore({
+const answers = provideAnswersHeadless({
   apiKey: process.env.ANSWERS_API_KEY,
   experienceKey: "firstfinancial-answers",
   locale: "en",
@@ -35,10 +35,10 @@ const main = async () => {
       ? dasha.chat.connect(await dasha.chat.createConsoleChat())
       : dasha.sip.connect(new dasha.sip.Endpoint("default"));
 
-  app.setExternal("search", async (args, conv) => {
-    const response = await core.universalSearch({ query: "branches near me" });
-    console.log(response);
+  app.setExternal("lookForBranch", async (args, conv) => {
+    const zipCode = args.zipCode;
 
+    console.log(zipCode);
     return "Hello from Answers!";
   });
 

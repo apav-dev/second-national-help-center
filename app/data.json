@@ -175,6 +175,127 @@
           "The name is (Holden)[last_name], (James)[first_name], (Holden)[last_name]",
           "(Bond)[last_name], (James)[first_name], (Bond)[last_name]"
         ]
-      }
+      },
+    "house_num": {
+      "open_set": true,
+      "values": [
+        {
+          "value": "762",
+          "synonyms": [
+            "seven six two",
+            "seven hundred sixty two",
+            "seven six two"
+          ]
+        },
+        {
+          "value": "7",
+          "synonyms": [
+            "seven"
+          ]
+        },
+        {
+          "value": "317",
+          "synonyms": [
+            "three hundred seventeen",
+            "three seventeen",
+            "three one seven"
+          ]
+        },
+        {
+          "value": "124",
+          "synonyms": [
+            "hundred twenty four",
+            "one twenty four",
+            "one two four"
+          ]
+        },
+        {
+          "value": "52",
+          "synonyms": [
+            "fifty two"
+          ]
+        },
+        {
+          "value": "16",
+          "synonyms": [
+            "sixteen"
+          ]
+        }
+      ],
+      "includes": [
+        "my building number is (seven)[house_num]",
+        "I live on (seventy five)[house_num] (William Penn Highway)[street]",
+        "my address is (one sixty two)[house_num] (Washington Road)[street]",
+        "deliver my order to (twenty seven)[house_num] (West Carson Street)[street]",
+        "deliver it to (six two one)[house_num] (McKnight Road)[street]",
+        "on (five hundred seventy nine)[house_num] (Centre Avenue)[street]",
+        "live on (Penn Avenue)[street] building number (seventy six)[house_num]",
+        "my address is (Centre ave)[street] building (one three six)[house_num]",
+        "my building number is (eighty three)[house_num]",
+        "house number is (two seventy three)[house_num]",
+        "my building number is (97)[house_num]",
+        "house number is (309)[house_num]",
+        "on (399)[house_num] (Centre Avenue)[street]",
+        "live on (Penn Avenue)[street] building number (598)[house_num]",
+        "my address is (Centre ave)[street] building (876)[house_num]"
+      ]
+    },
+    "street": {
+      "open_set": true,
+      "values": [
+        {
+          "value": "Washington Avenue",
+          "synonyms": [
+            "Washington Ave"
+          ]
+        },
+        {
+          "value": "Baum Boulevard",
+          "synonyms": [
+            "Baum Blvd"
+          ]
+        },
+        {
+          "value": "Grant Street"
+        },
+        {
+          "value": "Parkway North"
+        },
+        {
+          "value": "Penn Avenue",
+          "synonyms": [
+            "Penn ave"
+          ]
+        }
+      ],
+      "includes": [
+        "I live on (Penn avenue)[street]"
+      ]
+    },
+    "state": {
+      "open_set": false,
+      "values": [
+        {
+          "value": "New York",
+          "synonyms": [
+            "N Y"
+          ]
+        }
+      ]
+    },
+    "zip_code": {
+      "open_set": true,
+      "values": [
+        {
+          "value": "15242"
+        },
+        {
+          "value": "10002"
+        },
+        {
+          "value": "10007"
+        }
+      ]
+    }
   }
 }
