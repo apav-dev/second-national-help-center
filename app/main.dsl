@@ -2,14 +2,10 @@ import "commonReactions/all.dsl";
 
 context
 {
-  // declare input variables phone and name  - these variables are passed at the outset of the conversation. In this case, the phone number and customer’s name
   input phone: string;
   
-  // declare storage variables
   first_name: string = "";
   last_name: string = "";
-  response: string = "";
-  
   street_num: string="";
   street: string="";
   city: string="";
@@ -17,7 +13,14 @@ context
   zip_code: string="";
 }
 
+// type SpeechFaq =
+// {
+//   response?: string;
+//   followUpQuestion?: string;
+// };
+
 external function lookForBranch(street_num: string, street: string, city: string, state: string, zip_code: string): string;
+external function searchSpeechFaq(query: string): string[];
 
 start node root //start node
 {
@@ -49,47 +52,77 @@ digression how_may_i_help
   }
 }
 
-digression branch_search
+digression start_session
 {
   conditions
   {
-    on #messageHasIntent("locate_branch");
+    on #getSentenceType() == "question" or #getSentenceType() == "statement" or #getSentenceType() == "request";
   }
   do
   {
-    #sayText("I can certainly help with that. Could you provide me with your address or zip code?");
+    var sentence = #getMessageText();
+    var speechFaq: string[] = external searchSpeechFaq(sentence);
+    var response = speechFaq[0];
+    var followUpQuestion = speechFaq[1];
+    
+    if(response is not null)
+    {
+      #sayText(response);
+      if(followUpQuestion is not null)
+      {
+        #log(followUpQuestion);
+        // TODO: apply logic here to wait for a yes or no response and act accordingly
+      }
+    }
+    else
+    {
+      #sayText("Sorry I'm not sure I understood. Could you ask that again?");
+    }
     wait *;
   }
 }
 
-digression set_zip_code
-{
-  conditions
-  {
-    on #messageHasData("zip_code") and !#messageHasData("street_num") and !#messageHasData("street_name") and !#messageHasData("city") and !#messageHasData("state");
-  }
-  do
-  {
-    set $zip_code = #messageGetData("zip_code")[0]?.value ?? "";
-    #sayText("Ok let me see if I can find a branch close by, just give me one second.");
-    var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
-    #sayText("The closest branch I can find to you is located at " + branch_response);
-  }
-}
+// digression branch_search
+// {
+//   conditions
+//   {
+//     on #messageHasIntent("locate_branch");
+//   }
+//   do
+//   {
+//     #sayText("I can certainly help with that. Could you provide me with your address or zip code?");
+//     wait *;
+//   }
+// }
 
-digression set_address
-{
-  conditions
-  {
-    on #messageHasData("street_name") or #messageHasData("city") or !#messageHasData("state");
-  }
-  do
-  {
-    set $street_num = #messageGetData("street_num")[0]?.value ?? "";
-    set $street = #messageGetData("street")[0]?.value ?? "";
-    set $city = #messageGetData("city")[0]?.value ?? "";
-    set $state = #messageGetData("state")[0]?.value ?? "";
-    #sayText("Ok let me see if I can find a branch close by, just give me one second.");
-    var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
-  }
-}
+// digression set_zip_code
+// {
+//   conditions
+//   {
+//     on #messageHasData("zip_code") and !#messageHasData("street_num") and !#messageHasData("street_name") and !#messageHasData("city") and !#messageHasData("state");
+//   }
+//   do
+//   {
+//     set $zip_code = #messageGetData("zip_code")[0]?.value ?? "";
+//     #sayText("Ok let me see if I can find a branch close by, just give me one second.");
+//     var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
+//     #sayText("The closest branch I can find to you is located at " + branch_response);
+//   }
+// }
+
+// digression set_address
+// {
+//   conditions
+//   {
+//     on #messageHasData("street_name") or #messageHasData("city") or !#messageHasData("state");
+//   }
+//   do
+//   {
+//     set $street_num = #messageGetData("street_num")[0]?.value ?? "";
+//     set $street = #messageGetData("street")[0]?.value ?? "";
+//     set $city = #messageGetData("city")[0]?.value ?? "";
+//     set $state = #messageGetData("state")[0]?.value ?? "";
+//     #sayText("Ok let me see if I can find a branch close by, just give me one second.");
+//     var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
+//   }
+// }

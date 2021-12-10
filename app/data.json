@@ -63,7 +63,7 @@
         "I wouldn't say that"
       ]
     },
-    "conversational_faq": {
+    "speech_faq": {
       "includes": [
         "how do i",
         "how do you",
@@ -75,7 +75,8 @@
         "when do i",
         "looking to sell",
         "looking to transfer",
-        "how to I get"
+        "how to I get",
+        "loan"
       ]
     },
     "locate_branch": {
@@ -85,7 +86,9 @@
         "where is the closest branch",
         "what is the closest branch",
         "nearest branch to me",
-        "nearest location to me"
+        "nearest location to me",
+        "branches near me",
+        "the branch closest to me"
       ]
     }
   },

@@ -54,10 +54,27 @@ const main = async () => {
       limit: 1,
     });
 
-    const branchLocation =
-      branchesResponse.verticalResults.results[0].rawData.address;
+    const branchLocation = branchesResponse.verticalResults.results[0]
+      ? branchesResponse.verticalResults.results[0].rawData.address
+      : "";
 
     return `So it looks like we have a location at ${branchLocation.line1}. Would you like me to make you an appointment?`;
+  });
+
+  app.setExternal("searchSpeechFaq", async (args, conv) => {
+    const query = args.query;
+
+    const speechFaqResponse = await answers.verticalSearch({
+      query,
+      verticalKey: "speech_faq",
+      limit: 1,
+    });
+
+    const speechFaq = speechFaqResponse.verticalResults.results[0]
+      ? speechFaqResponse.verticalResults.results[0].rawData
+      : {};
+
+    return [speechFaq.c_verbalResponse, speechFaq.c_followUpQuestion];
   });
 
   await app.start();
