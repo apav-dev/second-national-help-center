@@ -81,7 +81,9 @@ node handle_question
   }
   transitions
   {
-    follow_up: goto follow_up on #messageHasIntent("yes");
+    follow_up: goto follow_up on ($follow_up_question is not null and #messageHasIntent("yes"));
+    can_help_else: goto can_help_else on #messageHasIntent("no");
+    handle_question: goto handle_question on #getSentenceType() == "question";
   }
 }
 
@@ -98,18 +100,35 @@ node follow_up
   }
 }
 
-// digression branch_search
-// {
-//   conditions
-//   {
-//     on #messageHasIntent("locate_branch");
-//   }
-//   do
-//   {
-//     #sayText("I can certainly help with that. Could you provide me with your address or zip code?");
-//     wait *;
-//   }
-// }
+node can_help_else
+{
+  do
+  {
+    #sayText("Is there anything else I can help you with today?");
+    wait*;
+  }
+  transitions
+  {
+    thats_it_bye: goto no_more_questions on #messageHasIntent("no");
+  }
+}
+
+digression branch_search
+{
+  conditions
+  {
+    on #messageHasIntent("locate_branch");
+  }
+  do
+  {
+    #sayText("I can certainly help with that. Could you provide me with your address or zip code?");
+    wait *;
+  }
+  transitions
+  {
+    set_address: goto set_address on ((#messageHasData("street_num") and #messageHasData("street_name") and #messageHasData("city") and #messageHasData("state")) or #messageHasData("zip_code"));
+  }
+}
 
 // digression set_zip_code
 // {
@@ -126,19 +145,43 @@ node follow_up
 //   }
 // }
 
-// digression set_address
-// {
-//   conditions
-//   {
-//     on #messageHasData("street_name") or #messageHasData("city") or !#messageHasData("state");
-//   }
-//   do
-//   {
-//     set $street_num = #messageGetData("street_num")[0]?.value ?? "";
-//     set $street = #messageGetData("street")[0]?.value ?? "";
-//     set $city = #messageGetData("city")[0]?.value ?? "";
-//     set $state = #messageGetData("state")[0]?.value ?? "";
-//     #sayText("Ok let me see if I can find a branch close by, just give me one second.");
-//     var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
-//   }
-// }
+node set_address
+{
+  do
+  {
+    set $street_num = #messageGetData("street_num")[0]?.value ?? "";
+    set $street = #messageGetData("street")[0]?.value ?? "";
+    set $city = #messageGetData("city")[0]?.value ?? "";
+    set $state = #messageGetData("state")[0]?.value ?? "";
+    set $zip_code = #messageGetData("zip_code")[0]?.value ?? "";
+    #sayText("Ok let me see if I can find a branch close by, just give me one second.");
+    var branch = external lookForBranch($street_num, $street, $city, $state, $zip_code);
+    #sayText("So it looks like we have a branch at " + branch + ". Would you like me to make an appoinment for you?");
+    wait *;
+  }
+}
+
+node no_more_questions
+{
+  do
+  {
+    #sayText("No problem, happy to help. I hope you have a great rest of your day. Bye!");
+    #disconnect();
+    exit;
+  }
+}
+
+digression thats_it_bye
+{
+  conditions
+  {
+    on #messageHasIntent("that_would_be_it");
+  }
+  
+  do
+  {
+    #sayText("No problem, happy to help. I hope you have a great rest of your day. Bye!");
+    #disconnect();
+    exit;
+  }
+}

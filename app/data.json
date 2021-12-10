@@ -60,7 +60,21 @@
         "not anytime soon",
         "not really",
         "not at all",
-        "I wouldn't say that"
+        "I wouldn't say that",
+        "no thanks",
+        "no thank you"
+      ]
+    },
+    "that_would_be_it": 
+    {
+      "includes": 
+      [
+        "that's all",
+        "that would be it",
+        "that would be all",
+        "that's it",
+        "im good",
+        "i have all i need"
       ]
     },
     "speech_faq": {

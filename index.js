@@ -58,7 +58,7 @@ const main = async () => {
       ? branchesResponse.verticalResults.results[0].rawData.address
       : "";
 
-    return `So it looks like we have a location at ${branchLocation.line1}. Would you like me to make you an appointment?`;
+    return branchLocation.line1;
   });
 
   app.setExternal("searchSpeechFaq", async (args, conv) => {
