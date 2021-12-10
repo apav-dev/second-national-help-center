@@ -11,6 +11,8 @@ context
   city: string="";
   state: string="";
   zip_code: string="";
+  
+  follow_up_question: string?;
 }
 
 // type SpeechFaq =
@@ -50,34 +52,48 @@ digression how_may_i_help
     #sayText("Awesome, nice to meet you " + $first_name + ", how may I assist you today?");
     wait *;
   }
+  transitions
+  {
+    handle_question: goto handle_question on (#getSentenceType() == "question" or #getSentenceType() == "statement" or #getSentenceType() == "request");
+  }
 }
 
-digression start_session
+node handle_question
 {
-  conditions
-  {
-    on #getSentenceType() == "question" or #getSentenceType() == "statement" or #getSentenceType() == "request";
-  }
   do
   {
     var sentence = #getMessageText();
     var speechFaq: string[] = external searchSpeechFaq(sentence);
     var response = speechFaq[0];
-    var followUpQuestion = speechFaq[1];
+    set $follow_up_question = speechFaq[1];
+    
+    #log($follow_up_question);
     
     if(response is not null)
     {
       #sayText(response);
-      if(followUpQuestion is not null)
-      {
-        #log(followUpQuestion);
-        // TODO: apply logic here to wait for a yes or no response and act accordingly
-      }
     }
     else
     {
-      #sayText("Sorry I'm not sure I understood. Could you ask that again?");
+      #say("dont_understand_request");
     }
+    wait *;
+  }
+  transitions
+  {
+    follow_up: goto follow_up on #messageHasIntent("yes");
+  }
+}
+
+node follow_up
+{
+  do
+  {
+    if($follow_up_question is not null)
+    {
+      #sayText($follow_up_question);
+    }
+    
     wait *;
   }
 }
