@@ -109,6 +109,7 @@ node can_help_else
   }
   transitions
   {
+    handle_question: goto handle_question on #getSentenceType() == "question";
     thats_it_bye: goto no_more_questions on #messageHasIntent("no");
   }
 }
@@ -158,6 +159,26 @@ node set_address
     var branch = external lookForBranch($street_num, $street, $city, $state, $zip_code);
     #sayText("So it looks like we have a branch at " + branch + ". Would you like me to make an appoinment for you?");
     wait *;
+  }
+  transitions
+  {
+    book_appointment: goto book_appointment on #messageHasIntent("yes");
+    can_help_else: goto can_help_else on #messageHasIntent("no");
+  }
+}
+
+node book_appointment
+{
+  do
+  {
+    #sayText("Just give me one moment and I'll get that booked for you.");
+    // TODO: Simulate booking of appointment. Replace with time in response with what the user actually said
+    #sayText("Ok. You're all set for December 22nd at 3 pm.");
+    goto can_help_else;
+  }
+  transitions
+  {
+    can_help_else: goto can_help_else;
   }
 }
 
