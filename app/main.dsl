@@ -125,29 +125,14 @@ digression branch_search
     #sayText("I can certainly help with that. Could you provide me with your address or zip code?");
     wait *;
   }
-  transitions
-  {
-    set_address: goto set_address on ((#messageHasData("street_num") and #messageHasData("street_name") and #messageHasData("city") and #messageHasData("state")) or #messageHasData("zip_code"));
-  }
 }
 
-// digression set_zip_code
-// {
-//   conditions
-//   {
-//     on #messageHasData("zip_code") and !#messageHasData("street_num") and !#messageHasData("street_name") and !#messageHasData("city") and !#messageHasData("state");
-//   }
-//   do
-//   {
-//     set $zip_code = #messageGetData("zip_code")[0]?.value ?? "";
-//     #sayText("Ok let me see if I can find a branch close by, just give me one second.");
-//     var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
-//     #sayText("The closest branch I can find to you is located at " + branch_response);
-//   }
-// }
-
-node set_address
+digression set_address
 {
+  conditions
+  {
+    on #messageHasData("street") or #messageHasData("zip_code");
+  }
   do
   {
     set $street_num = #messageGetData("street_num")[0]?.value ?? "";
@@ -162,18 +147,33 @@ node set_address
   }
   transitions
   {
-    book_appointment: goto book_appointment on #messageHasIntent("yes");
+    schedule_appointment: goto schedule_appointment on #messageHasIntent("yes");
     can_help_else: goto can_help_else on #messageHasIntent("no");
   }
 }
 
-node book_appointment
+node schedule_appointment
 {
   do
   {
+    #sayText("Ok. What day and time were you thinking");
+    wait *;
+  }
+}
+
+digression book_appointment
+{
+  conditions
+  {
+    on #messageHasData("time") and #messageHasData("day_of_week");
+  }
+  do
+  {
+    var time =  #messageGetData("time")[0]?.value??"";
+    var day_of_week =  #messageGetData("day_of_week")[0]?.value??"";
     #sayText("Just give me one moment and I'll get that booked for you.");
-    // TODO: Simulate booking of appointment. Replace with time in response with what the user actually said
-    #sayText("Ok. You're all set for December 22nd at 3 pm.");
+    external bookAppointment();
+    #sayText("Ok. You're all set for " + day_of_week + " at " + time);
     goto can_help_else;
   }
   transitions

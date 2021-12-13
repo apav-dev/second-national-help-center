@@ -258,6 +258,69 @@
         "(829)[street_num] (elm spring road)[street] (pittsburgh)[city] (state)[state]"
       ]
     },
+    "time": {
+      "open_set": true,
+      "values": [
+        {
+          "value": "two pm"
+        },
+        {
+          "value": "two thirty pm"
+        },
+        {
+          "value": "two forty five pm"
+        },
+        {
+          "value": "eleven am"
+        },
+        {
+          "value": "nine thirty am"
+        },
+        {
+          "value": "noon"
+        }
+      ],
+      "includes": [
+        "can i do (tuesday)[day_of_week] at (three pm)[time]",
+        "please schedule it for (monday)[day_of_week] at (nine thirty am)[time]",
+        "make it for (wednesday)[day_of_week] at (noon)[time]",
+        "can you schedule me for (friday)[day_of_week] at (one thirty pm)[time]",
+        "lets do (thursday)[day_of_week] at (three forty five pm)[time]"     
+      ]
+    },
+    "day_of_week": {
+      "open_set": false,
+      "values": [
+        {
+          "value": "Monday",
+          "synonyms": ["on Monday", "Lunes", "day one"]
+        },
+        {
+          "value": "Tuesday",
+          "synonyms": ["martes", "on Tuesday", "day two"]
+        },
+        {
+          "value": "Wednesday",
+          "synonyms": ["Humpday", "miercoles", "on Wednesday"]
+        },
+        {
+          "value": "Thursday",
+          "synonyms": ["jueves", "on Thursday"]
+        },
+        {
+          "value": "Friday",
+          "synonyms": ["TGIF", "viernes", "on Friday"]
+        },
+        {
+          "value": "Saturday",
+          "synonyms": ["sabado", "on Saturday"]
+        },
+        {
+          "value": "Sunday",
+          "synonyms": ["domingo", "on Sunday"]
+        }
+      ]
+    },
     "street": {
       "open_set": true,
       "values": [

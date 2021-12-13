@@ -77,6 +77,11 @@ const main = async () => {
     return [speechFaq.c_verbalResponse, speechFaq.c_followUpQuestion];
   });
 
+  // mocking making an API call to book an appointment
+  app.setExternal("bookAppointment", async (args, conv) => {
+    setTimeout(() => console.log("Booking Appointment..."), 2000);
+  });
+
   await app.start();
 
   const conv = app.createConversation({
