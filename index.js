@@ -52,6 +52,7 @@ const main = async () => {
       query: locationQuery,
       verticalKey: "locations",
       limit: 1,
+      locationRadius: 40233.6, // 25 miles
     });
 
     const branchLocation = branchesResponse.verticalResults.results[0]
