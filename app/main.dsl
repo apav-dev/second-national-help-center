@@ -6,23 +6,54 @@ context
   
   first_name: string = "";
   last_name: string = "";
-  street_num: string="";
-  street: string="";
-  city: string="";
-  state: string="";
-  zip_code: string="";
+  
+  user_address: Address =
+  {
+    street_num: "",
+    street: "",
+    city: "",
+    state: "",
+    zip_code: ""
+  }
+  ;
+  
+  branch: Branch?;
   
   follow_up_question: string?;
+  follow_up_data: string?;
 }
 
-// type SpeechFaq =
-// {
-//   response?: string;
-//   followUpQuestion?: string;
-// };
+type SpeechFaq =
+{
+  verbal_response: string?;
+  follow_up_question: string?;
+  follow_up_data: string?;
+}
+;
 
-external function lookForBranch(street_num: string, street: string, city: string, state: string, zip_code: string): string;
-external function searchSpeechFaq(query: string): string[];
+type Branch =
+{
+  address: string;
+  open_time: string;
+  close_time: string;
+  is_closed: boolean;
+  next_open_day: string;
+}
+;
+
+type Address =
+{
+  street_num: string;
+  street: string;
+  city: string;
+  state: string;
+  zip_code: string;
+}
+;
+
+external function lookForBranch(street_num: string, street: string, city: string, state: string, zip_code: string): Branch;
+external function searchSpeechFaq(query: string): SpeechFaq;
+external function bookAppointment(): empty;
 
 start node root //start node
 {
@@ -38,7 +69,7 @@ start node root //start node
   }
 }
 
-digression how_may_i_help
+digression greeting
 {
   conditions
   {
@@ -63,27 +94,41 @@ node handle_question
   do
   {
     var sentence = #getMessageText();
-    var speechFaq: string[] = external searchSpeechFaq(sentence);
-    var response = speechFaq[0];
-    set $follow_up_question = speechFaq[1];
+    var speechFaq: SpeechFaq = external searchSpeechFaq(sentence);
+    var response = speechFaq.verbal_response;
+    set $follow_up_question = speechFaq.follow_up_question;
+    set $follow_up_data = speechFaq.follow_up_data;
     
     #log($follow_up_question);
     
     if(response is not null)
     {
       #sayText(response);
+      
+      if($follow_up_question is not null)
+      {
+        wait
+        {
+          follow_up
+        }
+        ;
+      }
+      else
+      {
+        goto can_help_else;
+      }
     }
     else
     {
       #say("dont_understand_request");
+      wait *;
     }
-    wait *;
   }
   transitions
   {
-    follow_up: goto follow_up on ($follow_up_question is not null and #messageHasIntent("yes"));
-    can_help_else: goto can_help_else on #messageHasIntent("no");
-    handle_question: goto handle_question on #getSentenceType() == "question";
+    can_help_else: goto can_help_else;
+    follow_up: goto follow_up on #messageHasIntent("yes");
+    // handle_question: goto handle_question on #getSentenceType() == "question";
   }
 }
 
@@ -93,10 +138,31 @@ node follow_up
   {
     if($follow_up_question is not null)
     {
-      #sayText($follow_up_question);
+      if($follow_up_data is null)
+      {
+        #sayText($follow_up_question);
+      }
+      else if($follow_up_data == "address")
+      {
+        var user_address: Address = blockcall gather_address($follow_up_question);
+        // TODO: account for address already being stored
+        #sayText("New address was saved.");
+      }
     }
     
-    wait *;
+    goto can_help_else;
+  }
+  transitions
+  {
+    can_help_else: goto can_help_else;
+  }
+  onexit
+  {
+    can_help_else: do
+    {
+      set $follow_up_question = null;
+      set $follow_up_data = null;
+    }
   }
 }
 
@@ -122,58 +188,140 @@ digression branch_search
   }
   do
   {
-    #sayText("I can certainly help with that. Could you provide me with your address or zip code?");
+    // TODO: persist user address if user_street exists
+    var user_address: Address = blockcall gather_address("I can certainly help with that. Could you provide me with your address or zip code?");
+    // TODO: modify lookForBranch to return hours
+    set $branch = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
+    
+    if($branch is not null)
+    {
+      #sayText("So it looks like we have a branch at " + $branch.address + ". Would you like me to make an appoinment for you?");
+    }
+    else
+    {
+      #sayText("Sorry. It looks like we don't have a branch in your area.");
+      goto can_help_else_direct;
+    }
     wait *;
   }
   transitions
   {
-    set_address: goto set_address on ((#messageHasData("street_num") and #messageHasData("street_name") and #messageHasData("city") and #messageHasData("state")) or #messageHasData("zip_code"));
-  }
-}
-
-// digression set_zip_code
-// {
-//   conditions
-//   {
-//     on #messageHasData("zip_code") and !#messageHasData("street_num") and !#messageHasData("street_name") and !#messageHasData("city") and !#messageHasData("state");
-//   }
-//   do
-//   {
-//     set $zip_code = #messageGetData("zip_code")[0]?.value ?? "";
-//     #sayText("Ok let me see if I can find a branch close by, just give me one second.");
-//     var branch_response = external lookForBranch($street_num, $street, $city, $state, $zip_code);
-//     #sayText("The closest branch I can find to you is located at " + branch_response);
-//   }
-// }
-
-node set_address
-{
-  do
-  {
-    set $street_num = #messageGetData("street_num")[0]?.value ?? "";
-    set $street = #messageGetData("street")[0]?.value ?? "";
-    set $city = #messageGetData("city")[0]?.value ?? "";
-    set $state = #messageGetData("state")[0]?.value ?? "";
-    set $zip_code = #messageGetData("zip_code")[0]?.value ?? "";
-    #sayText("Ok let me see if I can find a branch close by, just give me one second.");
-    var branch = external lookForBranch($street_num, $street, $city, $state, $zip_code);
-    #sayText("So it looks like we have a branch at " + branch + ". Would you like me to make an appoinment for you?");
-    wait *;
-  }
-  transitions
-  {
-    book_appointment: goto book_appointment on #messageHasIntent("yes");
+    schedule_appointment: goto schedule_appointment on #messageHasIntent("yes");
     can_help_else: goto can_help_else on #messageHasIntent("no");
+    can_help_else_direct: goto can_help_else;
   }
 }
 
-node book_appointment
+digression check_branch_hours
+{
+  conditions
+  {
+    on #messageHasIntent("branch_hours");
+  }
+  do
+  {
+    if($branch is not null)
+    {
+      if($branch.is_closed)
+      {
+        #sayText("The branch at " + $branch.address + " is closed today. It will reopen on " + $branch.next_open_day);
+      }
+      else
+      {
+        #sayText("The branch at " + $branch.address + " is open from " + $branch.open_time + " to " + $branch.close_time + " today.");
+      }
+    }
+    else
+    {
+      // TODO: persist user address if user_street exists
+      var user_address: Address = blockcall gather_address("Can you provide me an address or zip code so that I can check the hours of the branch closest to you?");
+      set $branch = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
+      
+      if($branch is not null)
+      {
+        if($branch.is_closed)
+        {
+          #sayText("The branch at " + $branch.address + " is closed today. It will reopen on " + $branch.next_open_day + " at " + $branch.open_time);
+        }
+        else
+        {
+          #sayText("The branch at " + $branch.address + " is open from " + $branch.open_time + " to " + $branch.close_time + " today.");
+        }
+      }
+      else
+      {
+        #sayText("Sorry. It looks like we don't have a branch in your area.");
+      }
+    }
+    goto can_help_else;
+  }
+  transitions
+  {
+    can_help_else: goto can_help_else;
+  }
+}
+
+// TODO: handle when user doesnt say address
+block gather_address(capture_address_message: string): Address
+{
+  start node request_address
+  {
+    do
+    {
+      #sayText($capture_address_message);
+      wait *;
+    }
+  }
+  
+  digression capture_address
+  {
+    conditions
+    {
+      on #messageHasData("street") or #messageHasData("zip_code");
+    }
+    do
+    {
+      var user_street_num = #messageGetData("street_num")[0]?.value ?? "";
+      var user_street = #messageGetData("street")[0]?.value ?? "";
+      var user_city = #messageGetData("city")[0]?.value ?? "";
+      var user_state = #messageGetData("state")[0]?.value ?? "";
+      var user_zip_code = #messageGetData("zip_code")[0]?.value ?? "";
+      
+      return
+      {
+        street_num: user_street_num,
+        street: user_street,
+        city: user_city,
+        state: user_state,
+        zip_code: user_zip_code
+      }
+      ;
+    }
+  }
+}
+
+node schedule_appointment
 {
   do
   {
+    #sayText("Ok. What day and time were you thinking");
+    wait *;
+  }
+}
+
+digression book_appointment
+{
+  conditions
+  {
+    on #messageHasData("time") and #messageHasData("day_of_week");
+  }
+  do
+  {
+    var time =  #messageGetData("time")[0]?.value??"";
+    var day_of_week =  #messageGetData("day_of_week")[0]?.value??"";
     #sayText("Just give me one moment and I'll get that booked for you.");
-    // TODO: Simulate booking of appointment. Replace with time in response with what the user actually said
-    #sayText("Ok. You're all set for December 22nd at 3 pm.");
+    external bookAppointment();
+    #sayText("Ok. You're all set for " + day_of_week + " at " + time);
     goto can_help_else;
   }
   transitions

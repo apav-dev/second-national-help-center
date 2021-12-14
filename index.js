@@ -52,13 +52,40 @@ const main = async () => {
       query: locationQuery,
       verticalKey: "locations",
       limit: 1,
+      locationRadius: 40233.6, // 25 miles
     });
 
-    const branchLocation = branchesResponse.verticalResults.results[0]
-      ? branchesResponse.verticalResults.results[0].rawData.address
-      : "";
+    if (branchesResponse.verticalResults.results[0]) {
+      const branch = branchesResponse.verticalResults.results[0].rawData;
+      const address = branch.address.line1;
+      const dayOfWeek = getDayOfWeek(new Date().getDay());
+      console.log(`start hour ${JSON.stringify(branch.hours)}`);
 
-    return branchLocation.line1;
+      if (dayOfWeek && branch.hours[dayOfWeek].isClosed) {
+        // TODO: add logic to find next open day
+        return {
+          address,
+          open_time: "9 am",
+          closedTime: "5 pm",
+          is_closed: true,
+          next_open_day: "Monday",
+        };
+      } else {
+        return {
+          address,
+          open_time: get12HourTime(
+            branch.hours[dayOfWeek].openIntervals[0].start
+          ),
+          close_time: get12HourTime(
+            branch.hours[dayOfWeek].openIntervals[0].end
+          ),
+          is_closed: false,
+          next_open_day: "",
+        };
+      }
+    } else {
+      return null;
+    }
   });
 
   app.setExternal("searchSpeechFaq", async (args, conv) => {
@@ -74,7 +101,16 @@ const main = async () => {
       ? speechFaqResponse.verticalResults.results[0].rawData
       : {};
 
-    return [speechFaq.c_verbalResponse, speechFaq.c_followUpQuestion];
+    return {
+      verbal_response: speechFaq.c_verbalResponse,
+      follow_up_question: speechFaq.c_followUpQuestion ?? null,
+      follow_up_data: speechFaq.c_followUpData ?? null,
+    };
+  });
+
+  // mocking making an API call to book an appointment
+  app.setExternal("bookAppointment", async (args, conv) => {
+    setTimeout(() => console.log("Booking Appointment..."), 2000);
   });
 
   await app.start();
@@ -105,7 +141,28 @@ const main = async () => {
   app.dispose();
 };
 
+const getDayOfWeek = (dayIndex) =>
+  [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ][dayIndex] || "";
+
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+const get12HourTime = (time) => {
+  const [hour, minute] = time.split(":");
+
+  if (hour < 12) {
+    return `${hour}:${minute} AM`;
+  } else {
+    return `${parseInt(hour) - 12}:${minute} PM`;
+  }
+};
