@@ -6,11 +6,6 @@ context
   
   first_name: string = "";
   last_name: string = "";
-  // street_num: string="";
-  // street: string="";
-  // city: string="";
-  // state: string="";
-  // zip_code: string="";
   
   user_address: Address =
   {
@@ -22,16 +17,29 @@ context
   }
   ;
   
-  branch_address: string?;
+  branch: Branch?;
   
   follow_up_question: string?;
+  follow_up_data: string?;
 }
 
-// type SpeechFaq =
-// {
-//   response?: string;
-//   followUpQuestion?: string;
-// };
+type SpeechFaq =
+{
+  verbal_response: string?;
+  follow_up_question: string?;
+  follow_up_data: string?;
+}
+;
+
+type Branch =
+{
+  address: string;
+  open_time: string;
+  close_time: string;
+  is_closed: boolean;
+  next_open_day: string;
+}
+;
 
 type Address =
 {
@@ -43,8 +51,8 @@ type Address =
 }
 ;
 
-external function lookForBranch(street_num: string, street: string, city: string, state: string, zip_code: string): string;
-external function searchSpeechFaq(query: string): string[];
+external function lookForBranch(street_num: string, street: string, city: string, state: string, zip_code: string): Branch;
+external function searchSpeechFaq(query: string): SpeechFaq;
 external function bookAppointment(): empty;
 
 start node root //start node
@@ -86,9 +94,10 @@ node handle_question
   do
   {
     var sentence = #getMessageText();
-    var speechFaq: string[] = external searchSpeechFaq(sentence);
-    var response = speechFaq[0];
-    set $follow_up_question = speechFaq[1];
+    var speechFaq: SpeechFaq = external searchSpeechFaq(sentence);
+    var response = speechFaq.verbal_response;
+    set $follow_up_question = speechFaq.follow_up_question;
+    set $follow_up_data = speechFaq.follow_up_data;
     
     #log($follow_up_question);
     
@@ -129,10 +138,31 @@ node follow_up
   {
     if($follow_up_question is not null)
     {
-      #sayText($follow_up_question);
+      if($follow_up_data is null)
+      {
+        #sayText($follow_up_question);
+      }
+      else if($follow_up_data == "address")
+      {
+        var user_address: Address = blockcall gather_address($follow_up_question);
+        // TODO: account for address already being stored
+        #sayText("New address was saved.");
+      }
     }
     
-    wait *;
+    goto can_help_else;
+  }
+  transitions
+  {
+    can_help_else: goto can_help_else;
+  }
+  onexit
+  {
+    can_help_else: do
+    {
+      set $follow_up_question = null;
+      set $follow_up_data = null;
+    }
   }
 }
 
@@ -161,11 +191,11 @@ digression branch_search
     // TODO: persist user address if user_street exists
     var user_address: Address = blockcall gather_address("I can certainly help with that. Could you provide me with your address or zip code?");
     // TODO: modify lookForBranch to return hours
-    set $branch_address = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
+    set $branch = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
     
-    if($branch_address is not null)
+    if($branch is not null)
     {
-      #sayText("So it looks like we have a branch at " + $branch_address + ". Would you like me to make an appoinment for you?");
+      #sayText("So it looks like we have a branch at " + $branch.address + ". Would you like me to make an appoinment for you?");
     }
     else
     {
@@ -190,29 +220,40 @@ digression check_branch_hours
   }
   do
   {
-    if($branch_address is not null)
+    if($branch is not null)
     {
-      #sayText("The branch at " + $branch_address + " is open from 9 AM to 5 PM today.");
-      goto can_help_else;
+      if($branch.is_closed)
+      {
+        #sayText("The branch at " + $branch.address + " is closed today. It will reopen on " + $branch.next_open_day);
+      }
+      else
+      {
+        #sayText("The branch at " + $branch.address + " is open from " + $branch.open_time + " to " + $branch.close_time + " today.");
+      }
     }
     else
     {
       // TODO: persist user address if user_street exists
       var user_address: Address = blockcall gather_address("Can you provide me an address or zip code so that I can check the hours of the branch closest to you?");
-      // TODO: modify lookForBranch to return hours
-      set $branch_address = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
+      set $branch = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
       
-      if($branch_address is not null)
+      if($branch is not null)
       {
-        #sayText("The branch at " + $branch_address + " is open from 9 am to 5 pm today.");
+        if($branch.is_closed)
+        {
+          #sayText("The branch at " + $branch.address + " is closed today. It will reopen on " + $branch.next_open_day + " at " + $branch.open_time);
+        }
+        else
+        {
+          #sayText("The branch at " + $branch.address + " is open from " + $branch.open_time + " to " + $branch.close_time + " today.");
+        }
       }
       else
       {
         #sayText("Sorry. It looks like we don't have a branch in your area.");
-        goto can_help_else;
       }
-      wait *;
     }
+    goto can_help_else;
   }
   transitions
   {
