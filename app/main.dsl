@@ -6,11 +6,21 @@ context
   
   first_name: string = "";
   last_name: string = "";
-  street_num: string="";
-  street: string="";
-  city: string="";
-  state: string="";
-  zip_code: string="";
+  // street_num: string="";
+  // street: string="";
+  // city: string="";
+  // state: string="";
+  // zip_code: string="";
+  
+  user_address: Address =
+  {
+    street_num: "",
+    street: "",
+    city: "",
+    state: "",
+    zip_code: ""
+  }
+  ;
   
   branch_address: string?;
   
@@ -148,7 +158,9 @@ digression branch_search
   }
   do
   {
+    // TODO: persist user address if user_street exists
     var user_address: Address = blockcall gather_address("I can certainly help with that. Could you provide me with your address or zip code?");
+    // TODO: modify lookForBranch to return hours
     set $branch_address = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
     
     if($branch_address is not null)
@@ -167,6 +179,44 @@ digression branch_search
     schedule_appointment: goto schedule_appointment on #messageHasIntent("yes");
     can_help_else: goto can_help_else on #messageHasIntent("no");
     can_help_else_direct: goto can_help_else;
+  }
+}
+
+digression check_branch_hours
+{
+  conditions
+  {
+    on #messageHasIntent("branch_hours");
+  }
+  do
+  {
+    if($branch_address is not null)
+    {
+      #sayText("The branch at " + $branch_address + " is open from 9 AM to 5 PM today.");
+      goto can_help_else;
+    }
+    else
+    {
+      // TODO: persist user address if user_street exists
+      var user_address: Address = blockcall gather_address("Can you provide me an address or zip code so that I can check the hours of the branch closest to you?");
+      // TODO: modify lookForBranch to return hours
+      set $branch_address = external lookForBranch(user_address.street_num, user_address.street, user_address.city, user_address.state, user_address.zip_code);
+      
+      if($branch_address is not null)
+      {
+        #sayText("The branch at " + $branch_address + " is open from 9 am to 5 pm today.");
+      }
+      else
+      {
+        #sayText("Sorry. It looks like we don't have a branch in your area.");
+        goto can_help_else;
+      }
+      wait *;
+    }
+  }
+  transitions
+  {
+    can_help_else: goto can_help_else;
   }
 }
 
@@ -195,6 +245,7 @@ block gather_address(capture_address_message: string): Address
       var user_city = #messageGetData("city")[0]?.value ?? "";
       var user_state = #messageGetData("state")[0]?.value ?? "";
       var user_zip_code = #messageGetData("zip_code")[0]?.value ?? "";
+      
       return
       {
         street_num: user_street_num,

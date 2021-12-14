@@ -104,6 +104,22 @@
         "branches near me",
         "the branch closest to me"
       ]
+    },
+    "branch_hours": {
+      "includes": [
+        "what time does that branch close",
+        "when does that branch close",
+        "what time does that branch open",
+        "when does that branch open",
+        "what time does that location close",
+        "when does that location close",
+        "what time does that location open",
+        "when does that location open",
+        "what are the hours for that branch",
+        "what's the hours for that branch",
+        "what are the hours for that location",
+        "what's the hours for that location"
+      ]
     }
   },
   "entities": {
