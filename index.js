@@ -29,12 +29,12 @@ const fs = require("fs");
 const main = async () => {
   const app = await dasha.deploy("./app");
 
-  app.ttsDispatcher = () => "Default";
-
   app.connectionProvider = async (conv) =>
     conv.input.phone === "chat"
       ? dasha.chat.connect(await dasha.chat.createConsoleChat())
       : dasha.sip.connect(new dasha.sip.Endpoint("default"));
+
+  app.ttsDispatcher = () => "dasha";
 
   app.setExternal("lookForBranch", async (args, conv) => {
     const street_num = args.street_num;
